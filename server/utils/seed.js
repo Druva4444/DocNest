@@ -17,28 +17,33 @@ const objs = [
         capacity: 1024 * 1024 * 1024,
         support: "Email support",
         price: 0,
-        key: "free"
+        key: "free",
+        
     },
     {
         name: "Silver",
         capacity: 1024 * 1024 * 1024,
         support: "Email support",
         price: 1,
-        key: "silver"
+        key: "silver",
+        stripeprice:"price_1RbDW64YxA6ZD9YG9ZsTmv0p"
     },
     {
         name: "Gold",
         capacity: 5 * 1024 * 1024 * 1024,
         support: "Priority email support",
         price: 10,
-        key: "gold"
+        key: "gold",
+        stripeprice:"price_1RbDWe4YxA6ZD9YGl9GI8H3c"
     },
     {
         name: "Platinum",
         capacity: 10 * 1024 * 1024 * 1024,
         support: "24/7 Phone & Email support",
         price: 10, // updated from 10 to 20 (if that's correct)
-        key: "platinum"
+        key: "platinum",
+        stripeprice:"price_1RbDWz4YxA6ZD9YGzI22zufa"
+
     }
 ];
 

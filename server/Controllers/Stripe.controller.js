@@ -1,60 +1,63 @@
 import Stripe from 'stripe';
-import dotenv from 'dotenv';    
-import Plan from '../Models/Plan.model.js'
+import dotenv from 'dotenv';
+import Plan from '../Models/Plan.model.js';
 import Subscription from '../Models/Subscription.model.js';
-import User from '../Models/User.model.js'
+import User from '../Models/User.model.js';
+
 dotenv.config();
+
+if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+  console.error('❌ Stripe keys missing in environment variables');
+  process.exit(1);
+}
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-
-
+// Create Checkout Session
 export async function createCheckoutSession(req, res) {
-  console.log('inside')
+  // console.log('Inside createCheckoutSession');
   const { plan } = req.body;
- 
-
 
   try {
-    const planobj = await Plan.findById(plan)
-  
-    if(!planobj){
-      return res.status(400).json({message:"plan not found"})
+    const planObj = await Plan.findById(plan);
+    if (!planObj) {
+      return res.status(400).json({ message: "Plan not found" });
     }
-    console.log(planobj)
-    console.log('Stripe price ID:', planobj.stripeprice);  // Debug log
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: planobj.stripeprice,
+          price: planObj.stripeprice,
           quantity: 1,
         },
       ],
-      mode: 'subscription', 
-      success_url: process.env.FRONTEND_URL+'/success',
-      cancel_url: process.env.FRONTEND_URL+'/plans',
-      metadata:{
-        planId:plan.toString(),
-        userId:req.user._id.toString()
-      }
+      mode: 'subscription',
+      success_url: `${process.env.FRONTEND_URL}/success`,
+      cancel_url: `${process.env.FRONTEND_URL}/plans`,
+      metadata: {
+        planId: plan.toString(),
+        userId: req.user._id.toString(),
+      },
     });
 
     return res.status(200).json({ url: session.url });
   } catch (error) {
-    console.error('Stripe session error:', error);
-    return res.status(500).json({ message: 'Internal server error.' });
+    console.error('Stripe checkout session error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 }
-export const stripeWebhook = async (req, res) => {
-  console.log('inside webhook');
 
+// Stripe Webhook Handler
+export const stripeWebhook = async (req, res) => {
+  // console.log('Inside Stripe Webhook');
   const sig = req.headers['stripe-signature'];
   let event;
 
   try {
+    // Make sure you set `req.rawBody` in your Express app for Stripe webhooks
     event = stripe.webhooks.constructEvent(
-      req.rawBody, 
+      req.rawBody,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
@@ -68,38 +71,34 @@ export const stripeWebhook = async (req, res) => {
 
     try {
       const subscription = await stripe.subscriptions.retrieve(session.subscription);
+      const userId = session.metadata.userId;
+      const planId = session.metadata.planId;
 
-      const userId = session.metadata.userId;  
-      const planId = session.metadata.planId; 
+      // Cancel any existing active subscriptions for the user
       await Subscription.updateMany(
         { user: userId, status: 'active' },
         { $set: { status: 'cancelled' } }
       );
 
-      const x =  new Date(subscription.current_period_end * 1000);
+      // Create new subscription in DB
       await Subscription.create({
         user: userId,
         plan: planId,
-        
         stripeSubscriptionId: subscription.id,
         status: subscription.status,
-       
-        endDate: (() => {
-          const d = new Date();
-          d.setDate(d.getDate() + 30);
-          return d;
-        })(),
+        endDate: new Date(subscription.current_period_end * 1000),
       });
-     
+
+      // Update user with new plan
       await User.findByIdAndUpdate(userId, {
         plan: planId,
       });
 
-      console.log(` Subscription created for user ${userId}`);
+      // console.log(`Subscription created for user ${userId}`);
     } catch (err) {
       console.error('Error processing subscription:', err);
     }
   }
 
-  res.status(200).json({ received: true });
+  return res.status(200).json({ received: true });
 };

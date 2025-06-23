@@ -1,22 +1,22 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import {BrowserRouter} from 'react-router-dom'
-import './index.css'
-import App from './App.jsx'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import './index.css';
+import App from './App.jsx';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+if (!clientId) {
+  console.error(" Google Client ID is not set in environment variables");
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-    
-
-<GoogleOAuthProvider clientId="211503719039-h37d04vddjr0h6q4dno1dvpvia4gdmp8.apps.googleusercontent.com">
-  <App />
-</GoogleOAuthProvider>
-
+      <GoogleOAuthProvider clientId={clientId}>
+        <App />
+      </GoogleOAuthProvider>
     </BrowserRouter>
-   
-  </StrictMode>,
-)
+  </StrictMode>
+);

@@ -11,7 +11,7 @@ import cors from 'cors'
 import bodyParser from 'body-parser';
 dotenv.config();
 const app = express();
-app.use(cors({origin:"http://localhost:5173",credentials:true}))
+app.use(cors({origin:process.env.CLIENT_ORIGIN ||"http://localhost:5173",credentials:true}))
 app.use('/api/',webhookrouter)
 app.use(express.json())
 app.use(cookieParser())
@@ -22,5 +22,5 @@ app.use('/api/',authrouter)
 app.use('/api/',planrouter)
 app.use('/api/',Striperouter)
 
-mongoose.connect(process.env.MONGO_URL).then(()=>{console.log('mongodb connefcted')});
+mongoose.connect(process.env.MONGO_URL).then(()=>{console.log('mongodb connefcted')}).catch((err)=>{console.log('error connecting')});
 app.listen(PORT,()=>{console.log(`server running on port ${PORT}`)})
