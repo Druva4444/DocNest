@@ -11,7 +11,7 @@ import cors from 'cors'
 import bodyParser from 'body-parser';
 dotenv.config();
 const app = express();
-app.use(cors({origin:process.env.CLIENT_ORIGIN ||"http://localhost:5173",credentials:true}))
+app.use(cors({origin:process.env.FRONTEND_URL ||"http://localhost:5173",credentials:true}))
 app.use('/api/',webhookrouter)
 app.use(express.json())
 app.use(cookieParser())
