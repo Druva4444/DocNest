@@ -89,7 +89,7 @@ export async function login(req, res) {
     res.cookie('uid', token, {
       httpOnly: true,
       secure: true,
-      sameSite: 'Strict',
+      sameSite: 'None',
       maxAge: 3 * 24 * 60 * 60 * 1000,
     });
 
@@ -131,7 +131,7 @@ export async function logout(req, res) {
     res.clearCookie('uid', {
       httpOnly: true,
       secure: true,
-      sameSite: 'Strict',
+      sameSite: 'None',
     });
 
     return res.status(200).json({ message: 'Logout successful' });
