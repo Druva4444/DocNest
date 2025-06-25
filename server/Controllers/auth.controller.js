@@ -51,7 +51,7 @@ export async function googleAuth(req, res) {
     res.cookie('uid', tokenx, {
       httpOnly: true,
       secure: true, 
-      sameSite: 'Strict',
+      sameSite: 'None',
       maxAge: 3 * 24 * 60 * 60 * 1000,
     });
 
