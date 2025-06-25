@@ -8,7 +8,7 @@ export default function Home() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [alert, setAlert] = useState(null);
-  const [loading, setLoading] = useState(true); // loading state
+  const [loading, setLoading] = useState(true);
 
   const formatSize = (bytes) => {
     if (bytes > 1e9) return (bytes / 1e9).toFixed(2) + ' GB';
@@ -33,16 +33,12 @@ export default function Home() {
       }
     }
     fetchData();
-    console.log(user)
   }, []);
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
+  const handleFileChange = (e) => setSelectedFile(e.target.files[0]);
 
   const handleUpload = async () => {
     if (!selectedFile) return alert('Please select a file.');
-
     const formData = new FormData();
     formData.append('file', selectedFile);
 
@@ -74,8 +70,8 @@ export default function Home() {
   };
 
   const used = user?.usedcapacity ?? 100;
-  const max = user?.plan?.capacity || (user?.plan?.name === 'platinum' ? 1e9 : 1e8);
-  let rawPercent = (used / max) * 100;
+  const max = user?.plan?.capacity ?? (user?.plan?.name === 'platinum' ? 1e9 : 1e8);
+  const rawPercent = (used / max) * 100;
   const usagePercent = rawPercent > 0 && rawPercent < 0.01 ? 0.01 : rawPercent.toFixed(2);
 
   const getColor = () => {
@@ -91,15 +87,7 @@ export default function Home() {
         {loading ? (
           <div className="flex items-center justify-center min-h-screen">
             <svg className="animate-spin h-10 w-10 text-red-600" viewBox="0 0 24 24">
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-                fill="none"
-              />
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" className="opacity-25" />
               <path
                 className="opacity-75"
                 fill="currentColor"
@@ -113,20 +101,15 @@ export default function Home() {
               Welcome, {user?.name || 'User'}
             </h1>
 
-            {/* Alert */}
             {alert && (
-              <div
-                className={`mb-6 px-4 py-3 rounded ${
-                  alert.type === 'success' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'
-                }`}
-              >
+              <div className={`mb-6 px-4 py-3 rounded ${
+                alert.type === 'success' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'
+              }`}>
                 {alert.message}
               </div>
             )}
 
-            {/* Top Overview */}
             <div className="flex flex-col lg:flex-row gap-10 items-start justify-start">
-              {/* Circular Disk */}
               <div className="relative w-64 h-64">
                 <svg className="w-full h-full">
                   <circle cx="128" cy="128" r="100" className="stroke-gray-300" strokeWidth="18" fill="none" />
@@ -151,7 +134,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Info Cards */}
               <div className="flex flex-col gap-6 w-full max-w-md">
                 <div className="bg-white rounded-xl shadow-lg border-l-8 border-red-600 p-6 hover:shadow-xl transition">
                   <h2 className="text-xl text-red-700 font-semibold">Total Uploads</h2>
@@ -160,8 +142,8 @@ export default function Home() {
 
                 <div className="bg-white rounded-xl shadow-lg border-l-8 border-red-600 p-6 hover:shadow-xl transition">
                   <h2 className="text-xl text-red-700 font-semibold">Current Plan</h2>
-                  <p className="text-2xl mt-2 capitalize">{user.plan.name || 'free'}</p>
-                  {user?.plan.name === 'free' && (
+                  <p className="text-2xl mt-2 capitalize">{user?.plan?.name || 'free'}</p>
+                  {user?.plan?.name === 'free' && (
                     <button className="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
                       Upgrade Plan
                     </button>
@@ -169,7 +151,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Upload Card */}
               <div className="bg-white rounded-xl shadow-lg border-l-8 border-red-600 p-6 w-full max-w-md hover:shadow-xl transition flex flex-col gap-4">
                 <h2 className="text-xl text-red-700 font-semibold">Upload File</h2>
                 <input
@@ -187,31 +168,16 @@ export default function Home() {
                   {uploading ? (
                     <span className="flex items-center gap-2">
                       <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 11-8 8z"
-                        />
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 11-8 8z" />
                       </svg>
                       Uploading...
                     </span>
-                  ) : (
-                    'Upload'
-                  )}
+                  ) : 'Upload'}
                 </button>
               </div>
             </div>
 
-            {/* Recent Uploads */}
             <h2 className="text-2xl text-red-700 font-semibold mt-16 mb-4">Recent Uploads</h2>
             {uploads.length === 0 ? (
               <p className="text-gray-600 italic">No uploads found.</p>
@@ -225,11 +191,7 @@ export default function Home() {
                       key={idx}
                       onClick={async () => {
                         try {
-                          const res = await axios.post(
-                            '/api/geturl',
-                            { filename: upload.filename },
-                            { withCredentials: true }
-                          );
+                          const res = await axios.post('/api/geturl', { filename: upload.filename }, { withCredentials: true });
                           if (res.status === 200 && res.data?.url) {
                             window.open(res.data.url, '_blank');
                           } else {
