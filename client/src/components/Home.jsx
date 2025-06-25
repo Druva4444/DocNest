@@ -74,7 +74,7 @@ export default function Home() {
   };
 
   const used = user?.usedcapacity ?? 100;
-  const max = user?.plan.capacity || (user?.plan.name === 'platinum' ? 1e9 : 1e8);
+  const max = user?.plan?.capacity || (user?.plan?.name === 'platinum' ? 1e9 : 1e8);
   let rawPercent = (used / max) * 100;
   const usagePercent = rawPercent > 0 && rawPercent < 0.01 ? 0.01 : rawPercent.toFixed(2);
 
