@@ -14,7 +14,7 @@ const __dirname =path.resolve()
 dotenv.config();
 const app = express();
 app.use(cors({origin:"http://localhost:5173",credentials:true}))
-app.use('/api/',webhookrouter)
+app.use('/api/stripe',webhookrouter)
 app.use(express.json())
 app.use(cookieParser())
 const PORT = process.env.PORT || 5000;
