@@ -22,7 +22,7 @@ app.use('/api/',authrouter)
 
 app.use('/api/',planrouter)
 app.use('/api/',Striperouter)
-
+//nothing
 
 mongoose.connect(process.env.MONGO_URL).then(()=>{console.log('mongodb connefcted')}).catch((err)=>{console.log('error connecting')});
 app.listen(PORT,()=>{console.log(`server running on port ${PORT}`)})
