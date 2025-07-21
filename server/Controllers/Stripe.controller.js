@@ -50,12 +50,10 @@ export async function createCheckoutSession(req, res) {
 
 // Stripe Webhook Handler
 export const stripeWebhook = async (req, res) => {
-  // console.log('Inside Stripe Webhook');
   const sig = req.headers['stripe-signature'];
   let event;
 
   try {
-    // Make sure you set `req.rawBody` in your Express app for Stripe webhooks
     event = stripe.webhooks.constructEvent(
       req.rawBody,
       sig,
@@ -74,31 +72,32 @@ export const stripeWebhook = async (req, res) => {
       const userId = session.metadata.userId;
       const planId = session.metadata.planId;
 
-      // Cancel any existing active subscriptions for the user
+      const currentPeriodEnd = subscription?.current_period_end;
+      if (!currentPeriodEnd || isNaN(currentPeriodEnd)) {
+        console.error('Invalid subscription.current_period_end:', currentPeriodEnd);
+        return res.status(400).json({ message: 'Invalid subscription end date' });
+      }
+
       await Subscription.updateMany(
         { user: userId, status: 'active' },
         { $set: { status: 'cancelled' } }
       );
 
-      // Create new subscription in DB
       await Subscription.create({
         user: userId,
         plan: planId,
         stripeSubscriptionId: subscription.id,
         status: subscription.status,
-        endDate: new Date(subscription.current_period_end * 1000),
+        endDate: new Date(currentPeriodEnd * 1000),
       });
 
-      // Update user with new plan
-      await User.findByIdAndUpdate(userId, {
-        plan: planId,
-      });
-
-      // console.log(`Subscription created for user ${userId}`);
+      await User.findByIdAndUpdate(userId, { plan: planId });
     } catch (err) {
       console.error('Error processing subscription:', err);
+      return res.status(500).json({ error: 'Internal server error' });
     }
   }
 
   return res.status(200).json({ received: true });
 };
+
